@@ -1,7 +1,6 @@
 package resource
 
 import (
-	"fmt"
 	"io/ioutil"
 	"os"
 	"regexp"
@@ -47,8 +46,6 @@ func Flush(asset *Asset) error {
 	for entry := range asset.Source {
 		for source, hash := range asset.Source[entry] {
 			for bumpSource, bumpHash := range asset.BumpSource[entry] {
-				fmt.Println(regexp.QuoteMeta(source), regexp.QuoteMeta(hash))
-				fmt.Println(bumpSource, bumpHash)
 				regSource := regexp.MustCompile(`(\s{4}\-)\s+` + regexp.QuoteMeta(source) + `\s+:\s+` + regexp.QuoteMeta(hash))
 				content = regSource.ReplaceAllString(content, `$1 `+bumpSource+` : `+bumpHash)
 			}

@@ -60,7 +60,9 @@ func (provider ReleaseTarballProvider) Bump(url string) (string, string, error) 
 		if *rel.Prerelease || *rel.Draft {
 			continue
 		}
+
 		tagName = *rel.TagName
+		break
 	}
 
 	if len(tagName) == 0 {

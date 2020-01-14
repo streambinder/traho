@@ -57,6 +57,10 @@ func (provider ReleaseAssetProvider) Bump(url string) (string, string, error) {
 		return "", "", err
 	}
 
+	if len(rels) == 0 {
+		return "", "", fmt.Errorf("No release found")
+	}
+
 	var bumpedURL string
 	for _, asset := range rels[0].Assets {
 		if levenshtein.ComputeDistance(url, *asset.BrowserDownloadURL) <

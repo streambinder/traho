@@ -36,6 +36,9 @@ func init() {
 	}
 
 	flag.Parse()
+	if len(flag.Args()) == 0 {
+		log.Println("At least a package.yml file must be given")
+	}
 }
 
 func main() {

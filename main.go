@@ -98,6 +98,10 @@ func main() {
 		}
 
 		asset.BumpRelease = asset.Release + 1
-		log.Println(*asset)
+
+		if err := resource.Flush(asset); err != nil {
+			log.WithField("file", fname).WithError(err).Errorln("Unable to flush file content")
+		}
+		log.WithField("file", fname).Println("File correctly updated")
 	}
 }

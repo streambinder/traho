@@ -73,7 +73,7 @@ func (provider ReleaseAssetProvider) Bump(url string) (string, string, error) {
 		return "", "", fmt.Errorf("Unable to find a new asset")
 	}
 
-	return bumpedURL, *rels[0].TagName, nil
+	return bumpedURL, regVersionStrip.ReplaceAllString(*rels[0].TagName, ""), nil
 }
 
 func parseAssetAddress(url string) (*assetAddress, error) {

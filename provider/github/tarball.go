@@ -59,7 +59,8 @@ func (provider ReleaseTarballProvider) Bump(url string) (string, string, error) 
 		return "", "", fmt.Errorf("No release found")
 	}
 
-	return strings.ReplaceAll(url, address.Release, *rels[0].TagName), *rels[0].TagName, nil
+	return strings.ReplaceAll(url, address.Release, *rels[0].TagName),
+		regVersionStrip.ReplaceAllString(*rels[0].TagName, ""), nil
 }
 
 func parseTarballAddress(url string) (*tarballAddress, error) {

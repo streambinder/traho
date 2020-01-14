@@ -47,7 +47,7 @@ func main() {
 		}
 
 		for entry := range asset.Source {
-			for source := range asset.Source[entry] {
+			for source, hash := range asset.Source[entry] {
 				log.WithField("url", source).Println("Analyzing asset")
 
 				prov, err := provider.For(source)
@@ -60,14 +60,44 @@ func main() {
 					"provider": prov.Name(),
 					"source":   source,
 				}).Println("Bumping source")
-				bump, err := prov.Bump(source)
+				bump, version, err := prov.Bump(source)
 				if err != nil {
 					log.WithField("source", source).WithError(err).Warnln("Unable to bump source")
 					continue
 				}
 
-				log.WithField("source", bump).Println("Source correctly bumped")
+				// use only first source to update version
+				if asset.Version == version {
+					log.WithField("source", source).Println("No updates detected")
+					asset.BumpSource = append(asset.BumpSource, map[string]string{source: hash})
+					continue
+				}
+
+				log.WithField("source", bump).Println("Going to fetch source and calculate SHA265 hash")
+				assetHash, err := resource.Hash(bump)
+				if err != nil {
+					log.WithField("source", bump).WithError(err).Warnln("Unable to calculate hash for source")
+				}
+				asset.BumpSource = append(asset.BumpSource, map[string]string{bump: assetHash})
+
+				if entry == 0 {
+					asset.BumpVersion = version
+				}
+
+				log.WithFields(logrus.Fields{
+					"source":  bump,
+					"version": version,
+				}).Println("Source correctly bumped")
 			}
 		}
+
+		// check asset has been updated
+		if len(asset.BumpVersion) == 0 {
+			log.WithField("file", fname).Println("No update detected")
+			continue
+		}
+
+		asset.BumpRelease = asset.Release + 1
+		log.Println(*asset)
 	}
 }

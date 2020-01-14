@@ -44,17 +44,17 @@ func (provider ReleaseAssetProvider) Support(url string) bool {
 	return len(regAsset.FindStringSubmatch(url)) > 1
 }
 
-// Bump returns the bumped version of the given url
-// or, if unable, an error
-func (provider ReleaseAssetProvider) Bump(url string) (string, error) {
+// Bump returns the bump of the given url and
+// the updated associated version or, if unable, an error
+func (provider ReleaseAssetProvider) Bump(url string) (string, string, error) {
 	address, err := parseAssetAddress(url)
 	if err != nil {
-		return "", err
+		return "", "", err
 	}
 
 	rels, _, err := client().Repositories.ListReleases(ctx, address.User, address.Project, nil)
 	if err != nil {
-		return "", err
+		return "", "", err
 	}
 
 	var bumpedURL string
@@ -66,10 +66,10 @@ func (provider ReleaseAssetProvider) Bump(url string) (string, error) {
 	}
 
 	if len(bumpedURL) == 0 {
-		return "", fmt.Errorf("Unable to find a new asset")
+		return "", "", fmt.Errorf("Unable to find a new asset")
 	}
 
-	return bumpedURL, nil
+	return bumpedURL, *rels[0].TagName, nil
 }
 
 func parseAssetAddress(url string) (*assetAddress, error) {

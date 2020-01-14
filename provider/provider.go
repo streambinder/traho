@@ -12,7 +12,7 @@ type Provider interface {
 	Name() string
 	Ready() error
 	Support(string) bool
-	Bump(string) (string, error)
+	Bump(string) (string, string, error)
 }
 
 var definedProviders = []Provider{

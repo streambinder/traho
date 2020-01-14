@@ -13,4 +13,5 @@ type Asset struct {
 	Filename    string
 	BumpVersion string
 	BumpRelease int
+	BumpSource  []map[string]string
 }

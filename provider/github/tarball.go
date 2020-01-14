@@ -42,20 +42,20 @@ func (provider ReleaseTarballProvider) Support(url string) bool {
 	return len(regTarball.FindStringSubmatch(url)) > 1
 }
 
-// Bump returns the bumped version of the given url
-// or, if unable, an error
-func (provider ReleaseTarballProvider) Bump(url string) (string, error) {
+// Bump returns the bump of the given url and
+// the updated associated version or, if unable, an error
+func (provider ReleaseTarballProvider) Bump(url string) (string, string, error) {
 	address, err := parseTarballAddress(url)
 	if err != nil {
-		return "", err
+		return "", "", err
 	}
 
 	rels, _, err := client().Repositories.ListReleases(ctx, address.User, address.Project, nil)
 	if err != nil {
-		return "", err
+		return "", "", err
 	}
 
-	return strings.ReplaceAll(url, address.Release, *rels[0].TagName), nil
+	return strings.ReplaceAll(url, address.Release, *rels[0].TagName), *rels[0].TagName, nil
 }
 
 func parseTarballAddress(url string) (*tarballAddress, error) {

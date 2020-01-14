@@ -61,11 +61,21 @@ func (provider ReleaseAssetProvider) Bump(url string) (string, string, error) {
 		return "", "", fmt.Errorf("No release found")
 	}
 
-	var bumpedURL string
-	for _, asset := range rels[0].Assets {
-		if levenshtein.ComputeDistance(url, *asset.BrowserDownloadURL) <
-			levenshtein.ComputeDistance(url, bumpedURL) {
-			bumpedURL = *asset.BrowserDownloadURL
+	var (
+		bumpedURL string
+		tagName   string
+	)
+	for _, rel := range rels {
+		if *rel.Prerelease || *rel.Draft {
+			continue
+		}
+
+		for _, asset := range rel.Assets {
+			if levenshtein.ComputeDistance(url, *asset.BrowserDownloadURL) <
+				levenshtein.ComputeDistance(url, bumpedURL) {
+				bumpedURL = *asset.BrowserDownloadURL
+				tagName = *rel.TagName
+			}
 		}
 	}
 
@@ -73,7 +83,7 @@ func (provider ReleaseAssetProvider) Bump(url string) (string, string, error) {
 		return "", "", fmt.Errorf("Unable to find a new asset")
 	}
 
-	return bumpedURL, regVersionStrip.ReplaceAllString(*rels[0].TagName, ""), nil
+	return bumpedURL, regVersionStrip.ReplaceAllString(tagName, ""), nil
 }
 
 func parseAssetAddress(url string) (*assetAddress, error) {

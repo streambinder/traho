@@ -15,7 +15,8 @@ require (
 	github.com/onsi/gomega v1.8.1 // indirect
 	github.com/sirupsen/logrus v1.4.2
 	github.com/x-cray/logrus-prefixed-formatter v0.5.2
-	golang.org/x/crypto v0.0.0-20200109152110-61a87790db17 // indirect
+	github.com/xanzy/go-gitlab v0.22.3
+	golang.org/x/crypto v0.0.0-20200115085410-6d4e4cb37c7d // indirect
 	golang.org/x/net v0.0.0-20200114155413-6afb5195e5aa // indirect
 	golang.org/x/oauth2 v0.0.0-20200107190931-bf48bf16ab8d
 	golang.org/x/sys v0.0.0-20200113162924-86b910548bc1 // indirect

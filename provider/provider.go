@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/streambinder/solbump/provider/github"
+	"github.com/streambinder/solbump/provider/gitlab"
 )
 
 // Provider represents a source from which a package
@@ -18,6 +19,7 @@ type Provider interface {
 var definedProviders = []Provider{
 	new(github.ReleaseAssetProvider),
 	new(github.ReleaseTarballProvider),
+	new(gitlab.ReleaseTarballProvider),
 }
 
 // All return the array of usable providers

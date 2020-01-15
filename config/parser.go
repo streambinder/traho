@@ -4,6 +4,7 @@ import (
 	"os"
 
 	"github.com/streambinder/solbump/provider/github"
+	"github.com/streambinder/solbump/provider/gitlab"
 	"gopkg.in/yaml.v2"
 )
 
@@ -33,6 +34,15 @@ func (config *Config) process() error {
 		if err := os.Setenv(
 			github.GithubEnvironmentKey,
 			config.Github.API,
+		); err != nil {
+			return err
+		}
+	}
+
+	if len(config.Gitlab.API) > 0 {
+		if err := os.Setenv(
+			gitlab.GitlabEnvironmentKey,
+			config.Gitlab.API,
 		); err != nil {
 			return err
 		}

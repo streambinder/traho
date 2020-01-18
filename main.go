@@ -13,12 +13,14 @@ import (
 )
 
 var (
-	cfg *config.Config
-	log *logrus.Logger
-	dry bool
+	cfg        *config.Config
+	log        *logrus.Logger
+	argDry     bool
+	argVerbose bool
 )
 
 func init() {
+	// logger setup
 	log = logrus.New()
 	log.Formatter = &logrusPrefix.TextFormatter{
 		ForceColors:     true,
@@ -27,48 +29,59 @@ func init() {
 		TimestampFormat: "Mon 2 Jan 2006 15:04:05",
 	}
 
+	// config parse
 	usr, err := user.Current()
 	if err != nil {
 		log.WithError(err).Fatalln("Unable to get current user")
 	}
-
 	if cfg, err = config.Parse(filepath.Join(usr.HomeDir, ".config/solbump")); err != nil {
 		log.WithError(err).Fatalln("Unable to parse configuration file")
 	}
 
-	flag.BoolVar(&dry, "dry", false, "Dry run")
+	// args parse
+	flag.BoolVar(&argDry, "dry", false, "Dry run")
+	flag.BoolVar(&argVerbose, "verbose", false, "Verbose mode")
 	flag.Parse()
+
+	if argVerbose {
+		log.SetLevel(logrus.DebugLevel)
+	}
+
 	if len(flag.Args()) == 0 {
 		log.Println("At least a package.yml file must be given")
 	}
 }
 
 func main() {
+	// iterate over packages
 	for _, fname := range flag.Args() {
-		log.WithField("file", fname).Println("Inspecting resource")
+		log.WithField("file", fname).Debugln("Inspecting resource")
 		asset, err := resource.Parse(fname)
 		if err != nil {
 			log.WithField("file", fname).WithError(err).Warnln("Unable to parse asset")
 			continue
 		}
 
+		// iterate over package sources
 		for entry := range asset.Source {
 			for source, hash := range asset.Source[entry] {
-				log.WithField("url", source).Println("Analyzing asset")
+				log.WithField("url", source).Debugln("Analyzing asset")
 
+				// pick right provider for source
 				prov, err := provider.For(source)
 				if err != nil {
 					log.WithField("source", source).WithError(err).Warnln("Unable to find matching provider")
 					continue
 				}
 
+				// check source on provider for updates
 				log.WithFields(logrus.Fields{
 					"provider": prov.Name(),
 					"source":   source,
-				}).Println("Bumping source")
+				}).Debugln("Bumping source")
 				bump, version, err := prov.Bump(source)
 				if err != nil {
-					log.WithField("source", source).WithError(err).Warnln("Unable to bump source")
+					log.WithField("source", source).WithError(err).Errorln("Unable to bump source")
 					continue
 				}
 
@@ -78,7 +91,8 @@ func main() {
 					continue
 				}
 
-				if dry {
+				// do not fetch data if in dry mode
+				if argDry {
 					log.WithFields(logrus.Fields{
 						"source":  bump,
 						"version": version,
@@ -86,14 +100,17 @@ func main() {
 					continue
 				}
 
-				log.WithField("source", bump).Println("Going to fetch source and calculate SHA265 hash")
+				// fetch hash sum of updated source
+				log.WithField("source", bump).Debugln("Going to fetch source and calculate SHA265 hash")
 				assetHash, err := resource.Hash(bump)
 				if err != nil {
-					log.WithField("source", bump).WithError(err).Warnln("Unable to calculate hash for source")
+					log.WithField("source", bump).WithError(err).Errorln("Unable to calculate hash for source")
 					continue
 				}
 				asset.BumpSource = append(asset.BumpSource, map[string]string{bump: assetHash})
 
+				// set new package version based
+				// on first source update met
 				if entry == 0 {
 					asset.BumpVersion = version
 				}
@@ -101,24 +118,29 @@ func main() {
 				log.WithFields(logrus.Fields{
 					"source":  bump,
 					"version": version,
-				}).Println("Source correctly bumped")
+				}).Debugln("Source correctly bumped")
 			}
+		}
+
+		// do not persist update if in dry mode
+		if argDry {
+			continue
 		}
 
 		// check asset has been updated
 		if len(asset.BumpVersion) == 0 {
-			log.WithField("file", fname).Println("No update applied")
+			log.WithField("file", fname).Println("Package not update")
 			continue
 		}
 
-		if dry {
-			continue
-		}
-
+		// persist update on package file
 		asset.BumpRelease = asset.Release + 1
 		if err := resource.Flush(asset); err != nil {
 			log.WithField("file", fname).WithError(err).Errorln("Unable to flush file content")
 		}
-		log.WithField("file", fname).Println("File correctly updated")
+		log.WithFields(logrus.Fields{
+			"file":    fname,
+			"version": asset.BumpVersion,
+		}).Println("Package updated")
 	}
 }

@@ -65,23 +65,23 @@ func main() {
 		// iterate over package sources
 		for entry := range asset.Source {
 			for source, hash := range asset.Source[entry] {
-				log.WithField("url", source).Debugln("Analyzing asset")
+				log.WithField("source", asset.SourceID(source)).Debugln("Analyzing asset")
 
 				// pick right provider for source
 				prov, err := provider.For(source)
 				if err != nil {
-					log.WithField("source", source).WithError(err).Warnln("Unable to find matching provider")
+					log.WithField("source", asset.SourceID(source)).WithError(err).Warnln("Unable to find matching provider")
 					continue
 				}
 
 				// check source on provider for updates
 				log.WithFields(logrus.Fields{
 					"provider": prov.Name(),
-					"source":   source,
+					"source":   asset.SourceID(source),
 				}).Debugln("Bumping source")
 				bump, version, err := prov.Bump(source)
 				if err != nil {
-					log.WithField("source", source).WithError(err).Errorln("Unable to bump source")
+					log.WithField("source", asset.SourceID(source)).WithError(err).Errorln("Unable to bump source")
 					continue
 				}
 
@@ -94,17 +94,17 @@ func main() {
 				// do not fetch data if in dry mode
 				if argDry {
 					log.WithFields(logrus.Fields{
-						"source":  bump,
+						"source":  asset.SourceID(source),
 						"version": version,
 					}).Println("Source has an update")
 					continue
 				}
 
 				// fetch hash sum of updated source
-				log.WithField("source", bump).Debugln("Going to fetch source and calculate SHA265 hash")
+				log.WithField("source", asset.SourceID(source)).Debugln("Going to fetch source and calculate SHA265 hash")
 				assetHash, err := resource.Hash(bump)
 				if err != nil {
-					log.WithField("source", bump).WithError(err).Errorln("Unable to calculate hash for source")
+					log.WithField("source", asset.SourceID(source)).WithError(err).Errorln("Unable to calculate hash for source")
 					continue
 				}
 				asset.BumpSource = append(asset.BumpSource, map[string]string{bump: assetHash})
@@ -116,7 +116,7 @@ func main() {
 				}
 
 				log.WithFields(logrus.Fields{
-					"source":  bump,
+					"source":  asset.SourceID(source),
 					"version": version,
 				}).Debugln("Source correctly bumped")
 			}
@@ -129,7 +129,7 @@ func main() {
 
 		// check asset has been updated
 		if len(asset.BumpVersion) == 0 {
-			log.WithField("file", fname).Println("Package not update")
+			log.WithField("name", asset.Name).Println("Package not update")
 			continue
 		}
 
@@ -139,7 +139,7 @@ func main() {
 			log.WithField("file", fname).WithError(err).Errorln("Unable to flush file content")
 		}
 		log.WithFields(logrus.Fields{
-			"file":    fname,
+			"name":    asset.Name,
 			"version": asset.BumpVersion,
 		}).Println("Package updated")
 	}

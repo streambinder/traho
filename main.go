@@ -15,6 +15,7 @@ import (
 var (
 	cfg *config.Config
 	log *logrus.Logger
+	dry bool
 )
 
 func init() {
@@ -35,6 +36,7 @@ func init() {
 		log.WithError(err).Fatalln("Unable to parse configuration file")
 	}
 
+	flag.BoolVar(&dry, "dry", false, "Dry run")
 	flag.Parse()
 	if len(flag.Args()) == 0 {
 		log.Println("At least a package.yml file must be given")
@@ -47,6 +49,7 @@ func main() {
 		asset, err := resource.Parse(fname)
 		if err != nil {
 			log.WithField("file", fname).WithError(err).Warnln("Unable to parse asset")
+			continue
 		}
 
 		for entry := range asset.Source {
@@ -71,7 +74,6 @@ func main() {
 
 				// use only first source to update version
 				if asset.Version == version {
-					log.WithField("source", source).Println("No updates detected")
 					asset.BumpSource = append(asset.BumpSource, map[string]string{source: hash})
 					continue
 				}
@@ -100,8 +102,11 @@ func main() {
 			continue
 		}
 
-		asset.BumpRelease = asset.Release + 1
+		if dry {
+			continue
+		}
 
+		asset.BumpRelease = asset.Release + 1
 		if err := resource.Flush(asset); err != nil {
 			log.WithField("file", fname).WithError(err).Errorln("Unable to flush file content")
 		}

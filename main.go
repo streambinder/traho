@@ -78,10 +78,19 @@ func main() {
 					continue
 				}
 
+				if dry {
+					log.WithFields(logrus.Fields{
+						"source":  bump,
+						"version": version,
+					}).Println("Source has an update")
+					continue
+				}
+
 				log.WithField("source", bump).Println("Going to fetch source and calculate SHA265 hash")
 				assetHash, err := resource.Hash(bump)
 				if err != nil {
 					log.WithField("source", bump).WithError(err).Warnln("Unable to calculate hash for source")
+					continue
 				}
 				asset.BumpSource = append(asset.BumpSource, map[string]string{bump: assetHash})
 
@@ -98,7 +107,7 @@ func main() {
 
 		// check asset has been updated
 		if len(asset.BumpVersion) == 0 {
-			log.WithField("file", fname).Println("No update detected")
+			log.WithField("file", fname).Println("No update applied")
 			continue
 		}
 

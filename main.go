@@ -129,7 +129,7 @@ func main() {
 
 		// check asset has been updated
 		if len(asset.BumpVersion) == 0 {
-			log.WithField("name", asset.Name).Println("Package not update")
+			log.WithField("name", asset.Name).Println("Package not updated")
 			continue
 		}
 

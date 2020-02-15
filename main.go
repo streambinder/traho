@@ -122,11 +122,6 @@ func main() {
 			}
 		}
 
-		// do not persist update if in dry mode
-		if argDry {
-			continue
-		}
-
 		// check asset has been updated
 		if len(asset.BumpVersion) == 0 {
 			log.WithField("name", asset.Name).Println("Package not updated")
@@ -135,8 +130,11 @@ func main() {
 
 		// persist update on package file
 		asset.BumpRelease = asset.Release + 1
-		if err := resource.Flush(asset); err != nil {
-			log.WithField("file", fname).WithError(err).Errorln("Unable to flush file content")
+
+		if !argDry {
+			if err := resource.Flush(asset); err != nil {
+				log.WithField("file", fname).WithError(err).Errorln("Unable to flush file content")
+			}
 		}
 		log.WithFields(logrus.Fields{
 			"name":    asset.Name,

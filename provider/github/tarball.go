@@ -61,6 +61,10 @@ func (provider ReleaseTarballProvider) Bump(url string) (string, string, error) 
 			continue
 		}
 
+		if address.Release >= *rel.TagName {
+			break
+		}
+
 		tagName = *rel.TagName
 		break
 	}

@@ -70,6 +70,10 @@ func (provider ReleaseAssetProvider) Bump(url string) (string, string, error) {
 			continue
 		}
 
+		if address.Release >= *rel.TagName {
+			break
+		}
+
 		for _, asset := range rel.Assets {
 			if levenshtein.ComputeDistance(url, *asset.BrowserDownloadURL) <
 				levenshtein.ComputeDistance(url, bumpedURL) {

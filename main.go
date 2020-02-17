@@ -68,57 +68,59 @@ func main() {
 				log.WithField("source", asset.SourceID(source)).Debugln("Analyzing asset")
 
 				// pick right provider for source
-				prov, err := provider.For(source)
+				provs, err := provider.For(source)
 				if err != nil {
 					log.WithField("source", asset.SourceID(source)).WithError(err).Warnln("Unable to find matching provider")
 					continue
 				}
 
-				// check source on provider for updates
-				log.WithFields(logrus.Fields{
-					"provider": prov.Name(),
-					"source":   asset.SourceID(source),
-				}).Debugln("Bumping source")
-				bump, version, err := prov.Bump(source)
-				if err != nil {
-					log.WithField("source", asset.SourceID(source)).WithError(err).Errorln("Unable to bump source")
-					continue
-				}
+				for _, prov := range provs {
+					// check source on provider for updates
+					log.WithFields(logrus.Fields{
+						"provider": prov.Name(),
+						"source":   asset.SourceID(source),
+					}).Debugln("Bumping source")
+					bump, version, err := prov.Bump(source)
+					if err != nil {
+						log.WithField("source", asset.SourceID(source)).WithError(err).Errorln("Unable to bump source")
+						continue
+					}
 
-				// use only first source to update version
-				if asset.Version == version {
-					asset.BumpSource = append(asset.BumpSource, map[string]string{source: hash})
-					continue
-				}
+					// use only first source to update version
+					if asset.Version == version {
+						asset.BumpSource = append(asset.BumpSource, map[string]string{source: hash})
+						continue
+					}
 
-				// do not fetch data if in dry mode
-				if argDry {
+					// do not fetch data if in dry mode
+					if argDry {
+						log.WithFields(logrus.Fields{
+							"source":  asset.SourceID(source),
+							"version": version,
+						}).Println("Source has an update")
+						continue
+					}
+
+					// fetch hash sum of updated source
+					log.WithField("source", asset.SourceID(source)).Debugln("Going to fetch source and calculate SHA265 hash")
+					assetHash, err := resource.Hash(bump)
+					if err != nil {
+						log.WithField("source", asset.SourceID(source)).WithError(err).Errorln("Unable to calculate hash for source")
+						continue
+					}
+					asset.BumpSource = append(asset.BumpSource, map[string]string{bump: assetHash})
+
+					// set new package version based
+					// on first source update met
+					if entry == 0 {
+						asset.BumpVersion = version
+					}
+
 					log.WithFields(logrus.Fields{
 						"source":  asset.SourceID(source),
 						"version": version,
-					}).Println("Source has an update")
-					continue
+					}).Debugln("Source correctly bumped")
 				}
-
-				// fetch hash sum of updated source
-				log.WithField("source", asset.SourceID(source)).Debugln("Going to fetch source and calculate SHA265 hash")
-				assetHash, err := resource.Hash(bump)
-				if err != nil {
-					log.WithField("source", asset.SourceID(source)).WithError(err).Errorln("Unable to calculate hash for source")
-					continue
-				}
-				asset.BumpSource = append(asset.BumpSource, map[string]string{bump: assetHash})
-
-				// set new package version based
-				// on first source update met
-				if entry == 0 {
-					asset.BumpVersion = version
-				}
-
-				log.WithFields(logrus.Fields{
-					"source":  asset.SourceID(source),
-					"version": version,
-				}).Debugln("Source correctly bumped")
 			}
 		}
 

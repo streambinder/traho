@@ -19,6 +19,7 @@ type Provider interface {
 var definedProviders = []Provider{
 	new(github.ReleaseAssetProvider),
 	new(github.ReleaseTarballProvider),
+	new(github.TagTarballProvider),
 	new(gitlab.ReleaseTarballProvider),
 }
 
@@ -35,12 +36,16 @@ func All() (readyProviders []Provider) {
 
 // For returns the corresponding Provider
 // for the given url, an error otherwise
-func For(url string) (Provider, error) {
+func For(url string) (providers []Provider, err error) {
 	for _, provider := range All() {
 		if provider.Support(url) {
-			return provider, nil
+			providers = append(providers, provider)
 		}
 	}
 
-	return nil, fmt.Errorf("No suitable provider for the given url")
+	if len(providers) == 0 {
+		err = fmt.Errorf("No suitable provider for the given url")
+	}
+
+	return
 }

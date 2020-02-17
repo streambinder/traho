@@ -16,7 +16,7 @@ var (
 type ReleaseTarballProvider struct {
 }
 
-type tarballAddress struct {
+type relTarballAddress struct {
 	address
 	Release string
 }
@@ -77,13 +77,13 @@ func (provider ReleaseTarballProvider) Bump(url string) (string, string, error) 
 		regVersionStrip.ReplaceAllString(tagName, ""), nil
 }
 
-func parseTarballAddress(url string) (*tarballAddress, error) {
+func parseTarballAddress(url string) (*relTarballAddress, error) {
 	regTarball := regTarball.FindStringSubmatch(url)
 	if len(regTarball) < 4 {
 		return nil, fmt.Errorf("Unrecognized url %s", url)
 	}
 
-	addressTarball := new(tarballAddress)
+	addressTarball := new(relTarballAddress)
 	addressTarball.User = regTarball[1]
 	addressTarball.Project = regTarball[2]
 	addressTarball.Release = regTarball[3]

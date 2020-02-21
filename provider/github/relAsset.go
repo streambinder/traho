@@ -40,7 +40,7 @@ func (provider ReleaseAssetProvider) Ready() error {
 
 // Support returns true if the given url string
 // is supported by the provider
-func (provider ReleaseAssetProvider) Support(url string) bool {
+func (provider ReleaseAssetProvider) Support(url, version string) bool {
 	return len(regAsset.FindStringSubmatch(url)) > 1
 }
 

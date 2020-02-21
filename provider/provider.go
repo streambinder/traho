@@ -12,7 +12,7 @@ import (
 type Provider interface {
 	Name() string
 	Ready() error
-	Support(string) bool
+	Support(string, string) bool
 	Bump(string) (string, string, error)
 }
 
@@ -36,9 +36,9 @@ func All() (readyProviders []Provider) {
 
 // For returns the corresponding Provider
 // for the given url, an error otherwise
-func For(url string) (providers []Provider, err error) {
+func For(url, version string) (providers []Provider, err error) {
 	for _, provider := range All() {
-		if provider.Support(url) {
+		if provider.Support(url, version) {
 			providers = append(providers, provider)
 		}
 	}

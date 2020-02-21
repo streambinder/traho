@@ -38,7 +38,7 @@ func (provider TagTarballProvider) Ready() error {
 
 // Support returns true if the given url string
 // is supported by the provider
-func (provider TagTarballProvider) Support(url string) bool {
+func (provider TagTarballProvider) Support(url, version string) bool {
 	return len(regTarball.FindStringSubmatch(url)) > 1
 }
 

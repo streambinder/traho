@@ -5,6 +5,7 @@ import (
 
 	"github.com/streambinder/solbump/provider/github"
 	"github.com/streambinder/solbump/provider/gitlab"
+	"github.com/streambinder/solbump/provider/undated"
 )
 
 // Provider represents a source from which a package
@@ -21,6 +22,7 @@ var definedProviders = []Provider{
 	new(github.ReleaseTarballProvider),
 	new(github.TagTarballProvider),
 	new(gitlab.ReleaseTarballProvider),
+	new(undated.ResourceProvider),
 }
 
 // All return the array of usable providers

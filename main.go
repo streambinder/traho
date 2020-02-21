@@ -65,10 +65,13 @@ func main() {
 		// iterate over package sources
 		for entry := range asset.Source {
 			for source, hash := range asset.Source[entry] {
-				log.WithField("source", asset.SourceID(source)).Debugln("Analyzing asset")
+				log.WithFields(logrus.Fields{
+					"version": asset.Version,
+					"source":  asset.SourceID(source),
+				}).Debugln("Analyzing asset")
 
 				// pick right provider for source
-				provs, err := provider.For(source)
+				provs, err := provider.For(source, asset.Version)
 				if err != nil {
 					log.WithField("source", asset.SourceID(source)).WithError(err).Warnln("Unable to find matching provider")
 					continue

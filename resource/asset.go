@@ -21,8 +21,14 @@ type Asset struct {
 	BumpSource  []map[string]string
 }
 
+// ID returns a nice way to represent
+// a specific asset
+func (asset *Asset) ID() string {
+	return fmt.Sprintf("%s:%s", asset.Name, asset.Version)
+}
+
 // SourceID returns a simplified
 // ID for a given source entry
-func (asset *Asset) SourceID(url string) string {
-	return fmt.Sprintf("%s:%s", asset.Name, filepath.Base(url))
+func SourceID(url string) string {
+	return filepath.Base(url)
 }

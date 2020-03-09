@@ -62,74 +62,14 @@ func main() {
 			continue
 		}
 
-		// iterate over package sources
-		for entry := range asset.Source {
-			for source, hash := range asset.Source[entry] {
-				log.WithFields(logrus.Fields{
-					"version": asset.Version,
-					"source":  asset.SourceID(source),
-				}).Debugln("Analyzing asset")
-
-				// pick right provider for source
-				provs, err := provider.For(source, asset.Version)
-				if err != nil {
-					log.WithField("source", asset.SourceID(source)).WithError(err).Warnln("Unable to find matching provider")
-					continue
-				}
-
-				for _, prov := range provs {
-					// check source on provider for updates
-					log.WithFields(logrus.Fields{
-						"provider": prov.Name(),
-						"source":   asset.SourceID(source),
-					}).Debugln("Bumping source")
-					bump, version, err := prov.Bump(source)
-					if err != nil {
-						log.WithField("source", asset.SourceID(source)).WithError(err).Errorln("Unable to bump source")
-						continue
-					}
-
-					// use only first source to update version
-					if asset.Version == version {
-						asset.BumpSource = append(asset.BumpSource, map[string]string{source: hash})
-						continue
-					}
-
-					// do not fetch data if in dry mode
-					if argDry {
-						log.WithFields(logrus.Fields{
-							"source":  asset.SourceID(source),
-							"version": version,
-						}).Println("Source has an update")
-						continue
-					}
-
-					// fetch hash sum of updated source
-					log.WithField("source", asset.SourceID(source)).Debugln("Going to fetch source and calculate SHA265 hash")
-					assetHash, err := resource.Hash(bump)
-					if err != nil {
-						log.WithField("source", asset.SourceID(source)).WithError(err).Errorln("Unable to calculate hash for source")
-						continue
-					}
-					asset.BumpSource = append(asset.BumpSource, map[string]string{bump: assetHash})
-
-					// set new package version based
-					// on first source update met
-					if entry == 0 {
-						asset.BumpVersion = version
-					}
-
-					log.WithFields(logrus.Fields{
-						"source":  asset.SourceID(source),
-						"version": version,
-					}).Debugln("Source correctly bumped")
-				}
-			}
+		if err := handleSources(asset); err != nil {
+			log.WithField("package", asset.ID()).Errorln(err)
+			continue
 		}
 
 		// check asset has been updated
 		if len(asset.BumpVersion) == 0 {
-			log.WithField("name", asset.Name).Println("Package not updated")
+			log.WithField("package", asset.ID()).Println("Package is up-to-date")
 			continue
 		}
 
@@ -142,8 +82,74 @@ func main() {
 			}
 		}
 		log.WithFields(logrus.Fields{
-			"name":    asset.Name,
+			"package": asset.ID(),
 			"version": asset.BumpVersion,
 		}).Println("Package updated")
 	}
+}
+
+func handleSources(asset *resource.Asset) error {
+	// iterate over package sources
+	for idx := len(asset.Source) - 1; idx >= 0; idx-- {
+		entry := asset.Source[idx]
+		for url, hash := range entry {
+			// pick right provider for source
+			prov, err := provider.For(url, asset.Version)
+			if err != nil {
+				if idx == 0 {
+					return err
+				}
+				log.WithField("asset", resource.SourceID(url)).Errorln(err)
+				continue
+			}
+
+			// check source on provider for updates
+			log.WithFields(logrus.Fields{
+				"provider": prov.Name(),
+				"asset":    resource.SourceID(url),
+			}).Debugln("Analyzing asset")
+			bump, version, err := prov.Bump(url)
+			if err != nil {
+				if idx == 0 {
+					return err
+				}
+				log.WithField("asset", resource.SourceID(url)).Errorln(err)
+				continue
+			}
+
+			// use only first source to update version
+			if asset.Version == version {
+				asset.BumpSource = append(asset.BumpSource, map[string]string{url: hash})
+				continue
+			}
+
+			// fetch hash sum of updated source
+			if !argDry {
+				log.WithField("asset", resource.SourceID(url)).Debugln("Going to fetch source and calculate SHA265 hash")
+				assetHash, err := resource.Hash(bump)
+				if err != nil {
+					if idx == 0 {
+						return err
+					}
+					log.WithField("asset", resource.SourceID(url)).Errorln(err)
+					continue
+				}
+				asset.BumpSource = append(asset.BumpSource, map[string]string{bump: assetHash})
+			}
+
+			// set new package version based
+			// on first source update met
+			if idx == 0 {
+				asset.BumpVersion = version
+			}
+
+			log.WithFields(logrus.Fields{
+				"package": asset.ID(),
+				"asset":   resource.SourceID(url),
+				"version": version,
+			}).Debugln("Source correctly bumped")
+		}
+	}
+
+	return nil
 }

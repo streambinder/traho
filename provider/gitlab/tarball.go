@@ -52,20 +52,15 @@ func (provider ReleaseTarballProvider) Bump(url string) (string, string, error) 
 		return "", "", err
 	}
 
-	rels, _, err := client().Releases.ListReleases(address.User+"/"+address.Project, &gitlab.ListReleasesOptions{})
+	tags, _, err := client().Tags.ListTags(address.User+"/"+address.Project, &gitlab.ListTagsOptions{})
 	if err != nil {
 		return "", "", err
 	}
 
-	var tagName string
-	for _, rel := range rels {
-		tagName = rel.TagName
-		break
+	if len(tags) == 0 {
+		return "", "", fmt.Errorf("No tag found")
 	}
-
-	if len(tagName) == 0 {
-		return "", "", fmt.Errorf("No release found")
-	}
+	tagName := tags[0].Name
 
 	return strings.ReplaceAll(url, address.Release, tagName),
 		regVersionStrip.ReplaceAllString(tagName, ""), nil

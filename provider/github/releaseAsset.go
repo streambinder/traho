@@ -62,8 +62,8 @@ func (provider ReleaseAssetProvider) Bump(url string) (string, string, error) {
 	}
 
 	var (
-		bumpedURL string
-		tagName   string
+		bumpedURL = url
+		tagName   = address.Release
 	)
 	for _, rel := range rels {
 		if *rel.Prerelease || *rel.Draft {
@@ -81,10 +81,6 @@ func (provider ReleaseAssetProvider) Bump(url string) (string, string, error) {
 				tagName = *rel.TagName
 			}
 		}
-	}
-
-	if len(bumpedURL) == 0 {
-		return "", "", fmt.Errorf("Unable to find a new asset")
 	}
 
 	return bumpedURL, regVersionStrip.ReplaceAllString(tagName, ""), nil

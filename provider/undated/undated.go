@@ -29,7 +29,7 @@ func (provider ResourceProvider) Ready() error {
 // is supported by the provider
 func (provider ResourceProvider) Support(url, version string) bool {
 	_, err := time.Parse(versionFormat, version)
-	return !strings.Contains(url, version) && err == nil
+	return !strings.Contains(url, version) && strings.Contains(url, "?") && err == nil
 }
 
 // Bump returns the bump of the given url and

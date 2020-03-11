@@ -7,6 +7,7 @@ import (
 
 	"github.com/bradfitz/slice"
 	"github.com/google/go-github/github"
+	"github.com/streambinder/solbump/resource"
 )
 
 var (
@@ -75,7 +76,7 @@ func (provider TarballProvider) Bump(url, hash, version string) (string, string,
 		return (tags[i].GetCommit().GetAuthor().GetDate().After(tags[j].GetCommit().GetAuthor().GetDate()))
 	})
 
-	return tags[0].GetTarballURL(), regVersionStrip.ReplaceAllString(tags[0].GetName(), ""), nil
+	return tags[0].GetTarballURL(), resource.StripVersion(tags[0].GetName()), nil
 }
 
 func parseTagTarballAddress(url string) (*tagTarballAddress, error) {

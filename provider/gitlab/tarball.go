@@ -6,6 +6,7 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/streambinder/solbump/resource"
 	"github.com/xanzy/go-gitlab"
 )
 
@@ -63,7 +64,7 @@ func (provider ReleaseTarballProvider) Bump(url, hash, version string) (string, 
 	tagName := tags[0].Name
 
 	return strings.ReplaceAll(url, address.Release, tagName),
-		regVersionStrip.ReplaceAllString(tagName, ""), nil
+		resource.StripVersion(tagName), nil
 }
 
 func parseTarballAddress(url string) (*tarballAddress, error) {

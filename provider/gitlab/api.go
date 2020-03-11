@@ -14,8 +14,7 @@ import (
 const GitlabEnvironmentKey = "solbump.provider.gitlab"
 
 var (
-	regAddress      = regexp.MustCompile(`(?m)^http[s]://gitlab.com/(?P<User>[a-zA-Z0-9\-]+)/(?P<Project>.+)/.*$`)
-	regVersionStrip = regexp.MustCompile("[^0-9\\.]+")
+	regAddress = regexp.MustCompile(`(?m)^http[s]://gitlab.com/(?P<User>[a-zA-Z0-9\-]+)/(?P<Project>.+)/.*$`)
 )
 
 type address struct {

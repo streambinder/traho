@@ -4,7 +4,9 @@ import (
 	"fmt"
 	"os"
 	"regexp"
-	"strings"
+
+	"github.com/bradfitz/slice"
+	"github.com/google/go-github/github"
 )
 
 var (
@@ -50,7 +52,7 @@ func (provider TarballProvider) Bump(url, hash, version string) (string, string,
 		return "", "", err
 	}
 
-	tags, _, err := client().Repositories.ListTags(ctx, address.User, address.Project, nil)
+	tags, _, err := client().Repositories.ListTags(ctx, address.User, address.Project, &github.ListOptions{PerPage: 1500})
 	if err != nil {
 		return "", "", err
 	}
@@ -58,10 +60,22 @@ func (provider TarballProvider) Bump(url, hash, version string) (string, string,
 	if len(tags) == 0 {
 		return "", "", fmt.Errorf("No tag found")
 	}
-	tagName := *tags[0].Name
 
-	return strings.ReplaceAll(url, address.Tag, tagName),
-		regVersionStrip.ReplaceAllString(tagName, ""), nil
+	// FIXME: as soon as GitHub APIs start ordering tags
+	// by creation date, drop this block
+	for _, tag := range tags {
+		if tag.Commit.Author == nil {
+			commit, _, err := client().Repositories.GetCommit(ctx, address.User, address.Project, tag.GetCommit().GetSHA())
+			if err == nil {
+				tag.Commit = commit.GetCommit()
+			}
+		}
+	}
+	slice.Sort(tags[:], func(i, j int) bool {
+		return (tags[i].GetCommit().GetAuthor().GetDate().After(tags[j].GetCommit().GetAuthor().GetDate()))
+	})
+
+	return tags[0].GetTarballURL(), regVersionStrip.ReplaceAllString(tags[0].GetName(), ""), nil
 }
 
 func parseTagTarballAddress(url string) (*tagTarballAddress, error) {

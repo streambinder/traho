@@ -6,6 +6,7 @@ import (
 	"regexp"
 
 	"github.com/agnivade/levenshtein"
+	"github.com/streambinder/solbump/resource"
 )
 
 var (
@@ -83,7 +84,7 @@ func (provider ReleaseAssetProvider) Bump(url, hash, version string) (string, st
 		}
 	}
 
-	return bumpedURL, regVersionStrip.ReplaceAllString(tagName, ""), nil
+	return bumpedURL, resource.StripVersion(tagName), nil
 }
 
 func parseAssetAddress(url string) (*assetAddress, error) {

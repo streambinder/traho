@@ -46,7 +46,7 @@ func (provider ReleaseAssetProvider) Support(url, version string) bool {
 
 // Bump returns the bump of the given url and
 // the updated associated version or, if unable, an error
-func (provider ReleaseAssetProvider) Bump(url string) (string, string, error) {
+func (provider ReleaseAssetProvider) Bump(url, hash, version string) (string, string, error) {
 	address, err := parseAssetAddress(url)
 	if err != nil {
 		return "", "", err

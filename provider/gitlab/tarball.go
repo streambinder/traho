@@ -46,7 +46,7 @@ func (provider ReleaseTarballProvider) Support(url, version string) bool {
 
 // Bump returns the bump of the given url and
 // the updated associated version or, if unable, an error
-func (provider ReleaseTarballProvider) Bump(url string) (string, string, error) {
+func (provider ReleaseTarballProvider) Bump(url, hash, version string) (string, string, error) {
 	address, err := parseTarballAddress(url)
 	if err != nil {
 		return "", "", err

@@ -3,6 +3,8 @@ package undated
 import (
 	"strings"
 	"time"
+
+	"github.com/streambinder/solbump/resource"
 )
 
 const (
@@ -34,6 +36,10 @@ func (provider ResourceProvider) Support(url, version string) bool {
 
 // Bump returns the bump of the given url and
 // the updated associated version or, if unable, an error
-func (provider ResourceProvider) Bump(url string) (string, string, error) {
+func (provider ResourceProvider) Bump(url, hash, version string) (string, string, error) {
+	if bumpHash, err := resource.Hash(url); err == nil && bumpHash == hash {
+		return url, version, nil
+	}
+
 	return url, time.Now().Format(versionFormat), nil
 }

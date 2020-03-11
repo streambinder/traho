@@ -108,7 +108,7 @@ func handleSources(asset *resource.Asset) error {
 				"provider": prov.Name(),
 				"asset":    resource.SourceID(url),
 			}).Debugln("Analyzing asset")
-			bump, version, err := prov.Bump(url)
+			bump, version, err := prov.Bump(url, hash, asset.Version)
 			if err != nil {
 				if idx == 0 {
 					return err

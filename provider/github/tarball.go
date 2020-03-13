@@ -65,17 +65,19 @@ func (provider TarballProvider) Bump(url, hash, version string) (string, string,
 
 	// FIXME: as soon as GitHub APIs start ordering tags
 	// by creation date, drop this block
-	for _, tag := range tags {
-		if tag.Commit.Author == nil {
-			commit, _, err := client().Repositories.GetCommit(ctx, address.User, address.Project, tag.GetCommit().GetSHA())
-			if err == nil {
-				tag.Commit = commit.GetCommit()
+	if tags[0].Commit.Author == nil {
+		for _, tag := range tags {
+			if tag.Commit.Author == nil {
+				commit, _, err := client().Repositories.GetCommit(ctx, address.User, address.Project, tag.GetCommit().GetSHA())
+				if err == nil {
+					tag.Commit = commit.GetCommit()
+				}
 			}
 		}
+		slice.Sort(tags[:], func(i, j int) bool {
+			return (tags[i].GetCommit().GetAuthor().GetDate().After(tags[j].GetCommit().GetAuthor().GetDate()))
+		})
 	}
-	slice.Sort(tags[:], func(i, j int) bool {
-		return (tags[i].GetCommit().GetAuthor().GetDate().After(tags[j].GetCommit().GetAuthor().GetDate()))
-	})
 
 	return strings.ReplaceAll(url, address.Tag, tags[0].GetName()), resource.StripVersion(tags[0].GetName()), nil
 }

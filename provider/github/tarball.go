@@ -6,6 +6,7 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/Masterminds/semver"
 	"github.com/bradfitz/slice"
 	"github.com/google/go-github/github"
 	"github.com/streambinder/solbump/resource"
@@ -63,21 +64,17 @@ func (provider TarballProvider) Bump(url, hash, version string) (string, string,
 		return "", "", fmt.Errorf("No tag found")
 	}
 
-	// FIXME: as soon as GitHub APIs start ordering tags
-	// by creation date, drop this block
-	if tags[0].Commit.Author == nil {
-		for _, tag := range tags {
-			if tag.Commit.Author == nil {
-				commit, _, err := client().Repositories.GetCommit(ctx, address.User, address.Project, tag.GetCommit().GetSHA())
-				if err == nil {
-					tag.Commit = commit.GetCommit()
-				}
-			}
+	slice.Sort(tags[:], func(i, j int) bool {
+		versionFirst, errFirst := semver.NewVersion(resource.StripVersion(tags[i].GetName()))
+		if errFirst != nil {
+			return false
 		}
-		slice.Sort(tags[:], func(i, j int) bool {
-			return (tags[i].GetCommit().GetAuthor().GetDate().After(tags[j].GetCommit().GetAuthor().GetDate()))
-		})
-	}
+		versionLatter, errLatter := semver.NewVersion(resource.StripVersion(tags[j].GetName()))
+		if errLatter != nil {
+			return true
+		}
+		return versionFirst.GreaterThan(versionLatter)
+	})
 
 	return strings.ReplaceAll(url, address.Tag, tags[0].GetName()), resource.StripVersion(tags[0].GetName()), nil
 }

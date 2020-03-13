@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"regexp"
+	"strings"
 
 	"github.com/bradfitz/slice"
 	"github.com/google/go-github/github"
@@ -76,7 +77,7 @@ func (provider TarballProvider) Bump(url, hash, version string) (string, string,
 		return (tags[i].GetCommit().GetAuthor().GetDate().After(tags[j].GetCommit().GetAuthor().GetDate()))
 	})
 
-	return tags[0].GetTarballURL(), resource.StripVersion(tags[0].GetName()), nil
+	return strings.ReplaceAll(url, address.Tag, tags[0].GetName()), resource.StripVersion(tags[0].GetName()), nil
 }
 
 func parseTagTarballAddress(url string) (*tagTarballAddress, error) {

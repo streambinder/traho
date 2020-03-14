@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"path/filepath"
 	"regexp"
+	"strings"
 
 	"github.com/Masterminds/semver"
 	"github.com/PuerkitoBio/goquery"
@@ -110,7 +111,7 @@ func (provider VariablePathProvider) Bump(url, hash, version string) (string, st
 		return versionFirst.GreaterThan(versionLatter)
 	})
 
-	return address.Base + "/" + paths[0].Href + "/" + versions[0].Href,
+	return address.Base + "/" + strings.ReplaceAll(paths[0].Href+"/"+versions[0].Href, "//", "/"),
 		resource.StripVersion(versions[0].Href), nil
 }
 

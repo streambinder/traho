@@ -20,8 +20,8 @@ type Provider interface {
 var definedProviders = []Provider{
 	new(github.ReleaseAssetProvider),
 	new(github.TarballProvider),
-	new(gitlab.ReleaseTarballProvider),
-	new(undated.ResourceProvider),
+	new(gitlab.Provider),
+	new(undated.Provider),
 }
 
 // All return the array of usable providers

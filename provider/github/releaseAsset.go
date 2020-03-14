@@ -10,7 +10,7 @@ import (
 )
 
 var (
-	regAsset = regexp.MustCompile(`(?m)^http[s]://github.com/(?P<User>[a-zA-Z0-9\-]+)/(?P<Project>.+)/releases/download/(?P<Release>[a-zA-Z0-9\-\.]+)/(?P<Resource>.+)$`)
+	regAsset = regexp.MustCompile(`(?m)^http[s]?://github.com/(?P<User>[a-zA-Z0-9\-]+)/(?P<Project>.+)/releases/download/(?P<Release>[a-zA-Z0-9\-\.]+)/(?P<Resource>.+)$`)
 )
 
 // ReleaseAssetProvider represents the Provider implementation

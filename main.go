@@ -9,7 +9,7 @@ import (
 	"github.com/streambinder/solbump/config"
 	"github.com/streambinder/solbump/provider"
 	"github.com/streambinder/solbump/resource"
-	logrusPrefix "github.com/x-cray/logrus-prefixed-formatter"
+	logrusFormat "github.com/x-cray/logrus-prefixed-formatter"
 )
 
 var (
@@ -22,7 +22,7 @@ var (
 func init() {
 	// logger setup
 	log = logrus.New()
-	log.Formatter = &logrusPrefix.TextFormatter{
+	log.Formatter = &logrusFormat.TextFormatter{
 		ForceColors:     true,
 		ForceFormatting: true,
 		FullTimestamp:   true,

@@ -42,7 +42,8 @@ func (provider ReleaseAssetProvider) Ready() error {
 // Support returns true if the given url string
 // is supported by the provider
 func (provider ReleaseAssetProvider) Support(url, version string) bool {
-	return len(regAsset.FindStringSubmatch(url)) > 1
+	_, err := parseAssetAddress(url)
+	return err == nil
 }
 
 // Bump returns the bump of the given url and

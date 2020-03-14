@@ -46,7 +46,8 @@ func (provider VariablePathProvider) Ready() error {
 // Support returns true if the given url string
 // is supported by the provider
 func (provider VariablePathProvider) Support(url, version string) bool {
-	return len(regVariablePath.FindStringSubmatch(url)) > 1
+	_, err := parseAddress(url)
+	return err == nil
 }
 
 // Bump returns the bump of the given url and

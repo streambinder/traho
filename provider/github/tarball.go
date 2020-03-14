@@ -44,7 +44,8 @@ func (provider TarballProvider) Ready() error {
 // Support returns true if the given url string
 // is supported by the provider
 func (provider TarballProvider) Support(url, version string) bool {
-	return len(regTarball.FindStringSubmatch(url)) > 1
+	_, err := parseTagTarballAddress(url)
+	return err == nil
 }
 
 // Bump returns the bump of the given url and

@@ -3,6 +3,7 @@ package provider
 import (
 	"fmt"
 
+	"github.com/streambinder/solbump/provider/fileserver"
 	"github.com/streambinder/solbump/provider/github"
 	"github.com/streambinder/solbump/provider/gitlab"
 	"github.com/streambinder/solbump/provider/undated"
@@ -21,6 +22,7 @@ var definedProviders = []Provider{
 	new(github.ReleaseAssetProvider),
 	new(github.TarballProvider),
 	new(gitlab.Provider),
+	new(fileserver.VariablePathProvider),
 	new(undated.Provider),
 }
 

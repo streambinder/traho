@@ -64,7 +64,7 @@ func (provider ReleaseAssetProvider) Bump(url, hash, version string) (string, st
 	}
 
 	var (
-		bumpedURL = url
+		bumpedURL = ""
 		tagName   = address.Release
 	)
 	for _, rel := range rels {

@@ -23,6 +23,7 @@ var definedProviders = []Provider{
 	new(github.TarballProvider),
 	new(gitlab.Provider),
 	new(fileserver.VariablePathProvider),
+	new(fileserver.FixedPathProvider),
 	new(undated.Provider),
 }
 

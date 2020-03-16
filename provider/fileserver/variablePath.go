@@ -22,20 +22,14 @@ var (
 type VariablePathProvider struct {
 }
 
-type address struct {
-	Base     string
-	Release  string
-	Resource string
-}
-
-type href struct {
-	Label string
-	Href  string
+type variableAddress struct {
+	address
+	Release string
 }
 
 // Name returns the name ID of the provider
 func (provider VariablePathProvider) Name() string {
-	return "File Server asset"
+	return "File Server variable path asset"
 }
 
 // Ready returns an error if the provider
@@ -47,14 +41,14 @@ func (provider VariablePathProvider) Ready() error {
 // Support returns true if the given url string
 // is supported by the provider
 func (provider VariablePathProvider) Support(url, version string) bool {
-	_, err := parseAddress(url)
+	_, err := parseVariableAddress(url)
 	return err == nil
 }
 
 // Bump returns the bump of the given url and
 // the updated associated version or, if unable, an error
 func (provider VariablePathProvider) Bump(url, hash, version string) (string, string, error) {
-	address, err := parseAddress(url)
+	address, err := parseVariableAddress(url)
 	if err != nil {
 		return url, version, err
 	}
@@ -115,13 +109,13 @@ func (provider VariablePathProvider) Bump(url, hash, version string) (string, st
 		resource.StripVersion(versions[0].Href), nil
 }
 
-func parseAddress(url string) (*address, error) {
+func parseVariableAddress(url string) (*variableAddress, error) {
 	regAsset := regVariablePath.FindStringSubmatch(url)
 	if len(regAsset) < 4 {
 		return nil, fmt.Errorf("Unrecognized url %s", url)
 	}
 
-	addressAsset := new(address)
+	addressAsset := new(variableAddress)
 	addressAsset.Base = regAsset[1]
 	addressAsset.Release = regAsset[2]
 	addressAsset.Resource = regAsset[3]

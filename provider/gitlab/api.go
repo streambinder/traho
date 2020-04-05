@@ -40,6 +40,6 @@ func client() *gitlab.Client {
 		return cli
 	}
 
-	cli = gitlab.NewClient(nil, os.Getenv(GitlabEnvironmentKey))
+	cli, _ = gitlab.NewClient(os.Getenv(GitlabEnvironmentKey))
 	return cli
 }

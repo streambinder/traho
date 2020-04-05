@@ -7,7 +7,7 @@ import (
 var (
 	regVersions = []*regexp.Regexp{
 		regexp.MustCompile(`(?m)([0-9]{1}[0-9\.]+[0-9\-]+)`),
-		regexp.MustCompile(`(?m)^v([0-9]{1}[0-9\.]+$)`),
+		regexp.MustCompile(`(?m)^v([0-9]{1}[0-9\.]*$)`),
 	}
 )
 

@@ -109,6 +109,12 @@ func (provider VariablePathProvider) Bump(url, hash, version string) (string, st
 		resource.StripVersion(versions[0].Href), nil
 }
 
+// Hashes returns whether or not the provider uses
+// source mapping value of a source as an hash
+func (provider VariablePathProvider) Hashes() bool {
+	return true
+}
+
 func parseVariableAddress(url string) (*variableAddress, error) {
 	regAsset := regVariablePath.FindStringSubmatch(url)
 	if len(regAsset) < 4 {

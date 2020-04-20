@@ -118,13 +118,13 @@ func handleSources(asset *resource.Asset) error {
 			}
 
 			// use only first source to update version
-			if asset.Version == version {
+			if asset.Version == resource.StripVersion(version) {
 				asset.BumpSource = append(asset.BumpSource, map[string]string{url: hash})
 				continue
 			}
 
 			// fetch hash sum of updated source
-			if !argDry {
+			if !argDry && prov.Hashes() {
 				log.WithField("asset", resource.SourceID(url)).Debugln("Going to fetch source and calculate SHA265 hash")
 				assetHash, err := resource.Hash(bump)
 				if err != nil {
@@ -135,12 +135,14 @@ func handleSources(asset *resource.Asset) error {
 					continue
 				}
 				asset.BumpSource = append(asset.BumpSource, map[string]string{bump: assetHash})
+			} else {
+				asset.BumpSource = append(asset.BumpSource, map[string]string{bump: version})
 			}
 
 			// set new package version based
 			// on first source update met
 			if idx == 0 {
-				asset.BumpVersion = version
+				asset.BumpVersion = resource.StripVersion(version)
 			}
 
 			log.WithFields(logrus.Fields{

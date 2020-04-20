@@ -2,20 +2,18 @@ package github
 
 import (
 	"fmt"
-	"os"
 	"regexp"
 
 	"github.com/agnivade/levenshtein"
-	"github.com/streambinder/solbump/resource"
 )
 
 var (
 	regAsset = regexp.MustCompile(`(?m)^http[s]?://github.com/(?P<User>[a-zA-Z0-9\-]+)/(?P<Project>.+)/releases/download/(?P<Release>[a-zA-Z0-9\-\.]+)/(?P<Resource>.+)$`)
 )
 
-// ReleaseAssetProvider represents the Provider implementation
+// AssetProvider represents the Provider implementation
 // corresponding to github.com release asset
-type ReleaseAssetProvider struct {
+type AssetProvider struct {
 }
 
 type assetAddress struct {
@@ -25,15 +23,15 @@ type assetAddress struct {
 }
 
 // Name returns the name ID of the provider
-func (provider ReleaseAssetProvider) Name() string {
+func (provider AssetProvider) Name() string {
 	return "Github Release asset"
 }
 
 // Ready returns an error if the provider
 // is unconfigured or unusable
-func (provider ReleaseAssetProvider) Ready() error {
-	if len(os.Getenv(GithubEnvironmentKey)) != 40 {
-		return fmt.Errorf("Github API key not found")
+func (provider AssetProvider) Ready() error {
+	if err := envReady(); err != nil {
+		return err
 	}
 
 	return nil
@@ -41,14 +39,14 @@ func (provider ReleaseAssetProvider) Ready() error {
 
 // Support returns true if the given url string
 // is supported by the provider
-func (provider ReleaseAssetProvider) Support(url, version string) bool {
+func (provider AssetProvider) Support(url, version string) bool {
 	_, err := parseAssetAddress(url)
 	return err == nil
 }
 
 // Bump returns the bump of the given url and
 // the updated associated version or, if unable, an error
-func (provider ReleaseAssetProvider) Bump(url, hash, version string) (string, string, error) {
+func (provider AssetProvider) Bump(url, hash, version string) (string, string, error) {
 	address, err := parseAssetAddress(url)
 	if err != nil {
 		return "", "", err
@@ -85,19 +83,25 @@ func (provider ReleaseAssetProvider) Bump(url, hash, version string) (string, st
 		}
 	}
 
-	return bumpedURL, resource.StripVersion(tagName), nil
+	return bumpedURL, tagName, nil
+}
+
+// Hashes returns whether or not the provider uses
+// source mapping value of a source as an hash
+func (provider AssetProvider) Hashes() bool {
+	return true
 }
 
 func parseAssetAddress(url string) (*assetAddress, error) {
-	regAsset := regAsset.FindStringSubmatch(url)
-	if len(regAsset) < 5 {
+	asset := regAsset.FindStringSubmatch(url)
+	if len(asset) < 5 {
 		return nil, fmt.Errorf("Unrecognized url %s", url)
 	}
 
-	addressAsset := new(assetAddress)
-	addressAsset.User = regAsset[1]
-	addressAsset.Project = regAsset[2]
-	addressAsset.Release = regAsset[3]
-	addressAsset.Resource = regAsset[4]
-	return addressAsset, nil
+	address := new(assetAddress)
+	address.User = asset[1]
+	address.Project = asset[2]
+	address.Release = asset[3]
+	address.Resource = asset[4]
+	return address, nil
 }

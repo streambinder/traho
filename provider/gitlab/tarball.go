@@ -80,3 +80,9 @@ func parseTarballAddress(url string) (*tarballAddress, error) {
 	addressTarball.Release = regTarball[3]
 	return addressTarball, nil
 }
+
+// Hashes returns whether or not the provider uses
+// source mapping value of a source as an hash
+func (provider Provider) Hashes() bool {
+	return true
+}

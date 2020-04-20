@@ -16,11 +16,13 @@ type Provider interface {
 	Ready() error
 	Support(string, string) bool
 	Bump(string, string, string) (string, string, error)
+	Hashes() bool
 }
 
 var definedProviders = []Provider{
-	new(github.ReleaseAssetProvider),
+	new(github.AssetProvider),
 	new(github.TarballProvider),
+	new(github.TagProvider),
 	new(gitlab.Provider),
 	new(fileserver.VariablePathProvider),
 	new(fileserver.FixedPathProvider),

@@ -3,7 +3,6 @@ package github
 import (
 	"fmt"
 	"regexp"
-	"strings"
 
 	"github.com/Masterminds/semver"
 	"github.com/bradfitz/slice"
@@ -12,27 +11,27 @@ import (
 )
 
 var (
-	regTarball = regexp.MustCompile(`(?m)^http[s]?://github.com/(?P<User>[a-zA-Z0-9\-]+)/(?P<Project>.+)/archive/(?P<Tag>[a-zA-Z0-9\-\.]+).tar.gz$`)
+	regTag = regexp.MustCompile(`(?m)^git\|http[s]://github.com/(?P<User>[a-zA-Z0-9\-]+)/(?P<Project>.+).git$`)
 )
 
-// TarballProvider represents the Provider implementation
+// TagProvider represents the Provider implementation
 // corresponding to github.com tag tarball
-type TarballProvider struct {
+type TagProvider struct {
 }
 
-type tarballAddress struct {
+type tagAddress struct {
 	address
 	Tag string
 }
 
 // Name returns the name ID of the provider
-func (provider TarballProvider) Name() string {
-	return "Github tarball"
+func (provider TagProvider) Name() string {
+	return "Github tag"
 }
 
 // Ready returns an error if the provider
 // is unconfigured or unusable
-func (provider TarballProvider) Ready() error {
+func (provider TagProvider) Ready() error {
 	if err := envReady(); err != nil {
 		return err
 	}
@@ -42,18 +41,19 @@ func (provider TarballProvider) Ready() error {
 
 // Support returns true if the given url string
 // is supported by the provider
-func (provider TarballProvider) Support(url, version string) bool {
-	_, err := parseTarballAddress(url)
+func (provider TagProvider) Support(url, version string) bool {
+	_, err := parseTagAddress(url)
 	return err == nil
 }
 
 // Bump returns the bump of the given url and
 // the updated associated version or, if unable, an error
-func (provider TarballProvider) Bump(url, hash, version string) (string, string, error) {
-	address, err := parseTarballAddress(url)
+func (provider TagProvider) Bump(url, tag, version string) (string, string, error) {
+	address, err := parseTagAddress(url)
 	if err != nil {
 		return "", "", err
 	}
+	address.Tag = tag
 
 	tags, _, err := client().Repositories.ListTags(ctx, address.User, address.Project, &github.ListOptions{PerPage: 1500})
 	if err != nil {
@@ -76,24 +76,23 @@ func (provider TarballProvider) Bump(url, hash, version string) (string, string,
 		return versionFirst.GreaterThan(versionLatter)
 	})
 
-	return strings.ReplaceAll(url, address.Tag, tags[0].GetName()), tags[0].GetName(), nil
+	return url, tags[0].GetName(), nil
 }
 
 // Hashes returns whether or not the provider uses
 // source mapping value of a source as an hash
-func (provider TarballProvider) Hashes() bool {
-	return true
+func (provider TagProvider) Hashes() bool {
+	return false
 }
 
-func parseTarballAddress(url string) (*tarballAddress, error) {
-	tarball := regTarball.FindStringSubmatch(url)
-	if len(tarball) < 4 {
+func parseTagAddress(url string) (*tagAddress, error) {
+	tag := regTag.FindStringSubmatch(url)
+	if len(tag) != 3 {
 		return nil, fmt.Errorf("Unrecognized url %s", url)
 	}
 
-	address := new(tarballAddress)
-	address.User = tarball[1]
-	address.Project = tarball[2]
-	address.Tag = tarball[3]
+	address := new(tagAddress)
+	address.User = tag[1]
+	address.Project = tag[2]
 	return address, nil
 }

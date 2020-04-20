@@ -27,6 +27,14 @@ var (
 	ctx = context.Background()
 )
 
+func envReady() error {
+	if len(os.Getenv(GithubEnvironmentKey)) != 40 {
+		return fmt.Errorf("Github API key not found")
+	}
+
+	return nil
+}
+
 func parseAddress(url string) (*address, error) {
 	regURL := regAddress.FindStringSubmatch(url)
 	if len(regURL) < 3 {

@@ -88,6 +88,12 @@ func (provider FixedPathProvider) Bump(url, hash, version string) (string, strin
 	return address.Base + "/" + versions[0].Href, resource.StripVersion(versions[0].Href), nil
 }
 
+// Hashes returns whether or not the provider uses
+// source mapping value of a source as an hash
+func (provider FixedPathProvider) Hashes() bool {
+	return true
+}
+
 func parseAddress(url string) (*address, error) {
 	regAsset := regFixedPath.FindStringSubmatch(url)
 	if len(regAsset) < 3 {

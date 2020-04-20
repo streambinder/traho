@@ -43,3 +43,9 @@ func (provider Provider) Bump(url, hash, version string) (string, string, error)
 
 	return url, time.Now().Format(versionFormat), nil
 }
+
+// Hashes returns whether or not the provider uses
+// source mapping value of a source as an hash
+func (provider Provider) Hashes() bool {
+	return true
+}

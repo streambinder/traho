@@ -1,6 +1,7 @@
 package config
 
 import (
+	"io/ioutil"
 	"os"
 
 	"github.com/streambinder/solbump/provider/github"
@@ -11,18 +12,21 @@ import (
 // Parse generates a new Config instance
 // starting from a configuration file path
 func Parse(fname string) (*Config, error) {
-	config := new(Config)
 	if _, err := os.Stat(fname); os.IsNotExist(err) {
-		return config, nil
+		return new(Config), nil
 	}
 
-	file, err := os.Open(fname)
+	content, err := ioutil.ReadFile(fname)
 	if err != nil {
 		return nil, err
 	}
 
-	decoder := yaml.NewDecoder(file)
-	if err := decoder.Decode(&config); err != nil {
+	return parseYaml(content)
+}
+
+func parseYaml(content []byte) (*Config, error) {
+	config := new(Config)
+	if err := yaml.Unmarshal(content, config); err != nil {
 		return nil, err
 	}
 

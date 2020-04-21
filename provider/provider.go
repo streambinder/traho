@@ -20,9 +20,9 @@ type Provider interface {
 }
 
 var definedProviders = []Provider{
+	new(github.TagProvider),
 	new(github.AssetProvider),
 	new(github.TarballProvider),
-	new(github.TagProvider),
 	new(gitlab.Provider),
 	new(fileserver.VariablePathProvider),
 	new(fileserver.FixedPathProvider),

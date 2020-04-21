@@ -21,12 +21,6 @@ func (provider Provider) Name() string {
 	return "Undated resource"
 }
 
-// Ready returns an error if the provider
-// is unconfigured or unusable
-func (provider Provider) Ready() error {
-	return nil
-}
-
 // Support returns true if the given url string
 // is supported by the provider
 func (provider Provider) Support(url, version string) bool {

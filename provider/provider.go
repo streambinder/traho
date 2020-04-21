@@ -13,7 +13,6 @@ import (
 // and/or a tarball can be obtained
 type Provider interface {
 	Name() string
-	Ready() error
 	Support(string, string) bool
 	Bump(string, string, string) (string, string, error)
 	Hashes() bool
@@ -31,13 +30,7 @@ var definedProviders = []Provider{
 
 // All return the array of usable providers
 func All() (readyProviders []Provider) {
-	for _, provider := range definedProviders {
-		if provider.Ready() == nil {
-			readyProviders = append(readyProviders, provider)
-		}
-	}
-
-	return
+	return definedProviders
 }
 
 // For returns the corresponding Provider

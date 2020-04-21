@@ -3,16 +3,12 @@ package github
 import (
 	"context"
 	"fmt"
-	"os"
 	"regexp"
 
 	"github.com/google/go-github/github"
+	"github.com/streambinder/solbump/config"
 	"golang.org/x/oauth2"
 )
-
-// GithubEnvironmentKey is the environment key associated to
-// Github API key
-const GithubEnvironmentKey = "solbump.provider.github"
 
 var (
 	regAddress = regexp.MustCompile(`(?m)^http[s]://github.com/(?P<User>[a-zA-Z0-9\-]+)/(?P<Project>.+)/.*$`)
@@ -28,7 +24,7 @@ var (
 )
 
 func envReady() error {
-	if len(os.Getenv(GithubEnvironmentKey)) != 40 {
+	if len(config.Get().Github.API) != 40 {
 		return fmt.Errorf("Github API key not found")
 	}
 
@@ -50,7 +46,7 @@ func client() *github.Client {
 	}
 
 	cli = github.NewClient(oauth2.NewClient(ctx, oauth2.StaticTokenSource(
-		&oauth2.Token{AccessToken: os.Getenv(GithubEnvironmentKey)},
+		&oauth2.Token{AccessToken: config.Get().Github.API},
 	)))
 	return cli
 }

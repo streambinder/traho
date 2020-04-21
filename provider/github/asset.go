@@ -27,16 +27,6 @@ func (provider AssetProvider) Name() string {
 	return "Github Release asset"
 }
 
-// Ready returns an error if the provider
-// is unconfigured or unusable
-func (provider AssetProvider) Ready() error {
-	if err := envReady(); err != nil {
-		return err
-	}
-
-	return nil
-}
-
 // Support returns true if the given url string
 // is supported by the provider
 func (provider AssetProvider) Support(url, version string) bool {

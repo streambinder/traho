@@ -27,12 +27,6 @@ func (provider FixedPathProvider) Name() string {
 	return "File Server fixed path asset"
 }
 
-// Ready returns an error if the provider
-// is unconfigured or unusable
-func (provider FixedPathProvider) Ready() error {
-	return nil
-}
-
 // Support returns true if the given url string
 // is supported by the provider
 func (provider FixedPathProvider) Support(url, version string) bool {

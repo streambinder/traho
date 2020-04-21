@@ -2,7 +2,6 @@ package gitlab
 
 import (
 	"fmt"
-	"os"
 	"regexp"
 	"strings"
 
@@ -27,16 +26,6 @@ type tarballAddress struct {
 // Name returns the name ID of the provider
 func (provider Provider) Name() string {
 	return "Gitlab Release tarball"
-}
-
-// Ready returns an error if the provider
-// is unconfigured or unusable
-func (provider Provider) Ready() error {
-	if len(os.Getenv(GitlabEnvironmentKey)) == 0 {
-		return fmt.Errorf("Gitlab API key not found")
-	}
-
-	return nil
 }
 
 // Support returns true if the given url string

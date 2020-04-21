@@ -3,15 +3,11 @@ package gitlab
 import (
 	"context"
 	"fmt"
-	"os"
 	"regexp"
 
+	"github.com/streambinder/solbump/config"
 	"github.com/xanzy/go-gitlab"
 )
-
-// GitlabEnvironmentKey is the environment key associated to
-// Gitlab API key
-const GitlabEnvironmentKey = "solbump.provider.gitlab"
 
 var (
 	regAddress = regexp.MustCompile(`(?m)^http[s]://gitlab.com/(?P<User>[a-zA-Z0-9\-]+)/(?P<Project>.+)/.*$`)
@@ -40,6 +36,6 @@ func client() *gitlab.Client {
 		return cli
 	}
 
-	cli, _ = gitlab.NewClient(os.Getenv(GitlabEnvironmentKey))
+	cli, _ = gitlab.NewClient(config.Get().Gitlab.API)
 	return cli
 }

@@ -32,12 +32,6 @@ func (provider VariablePathProvider) Name() string {
 	return "File Server variable path asset"
 }
 
-// Ready returns an error if the provider
-// is unconfigured or unusable
-func (provider VariablePathProvider) Ready() error {
-	return nil
-}
-
 // Support returns true if the given url string
 // is supported by the provider
 func (provider VariablePathProvider) Support(url, version string) bool {

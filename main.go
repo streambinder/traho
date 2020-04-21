@@ -13,7 +13,6 @@ import (
 )
 
 var (
-	cfg        *config.Config
 	log        *logrus.Logger
 	argDry     bool
 	argVerbose bool
@@ -34,7 +33,7 @@ func init() {
 	if err != nil {
 		log.WithError(err).Fatalln("Unable to get current user")
 	}
-	if cfg, err = config.Parse(filepath.Join(usr.HomeDir, ".config/solbump")); err != nil {
+	if err = config.Parse(filepath.Join(usr.HomeDir, ".config/solbump")); err != nil {
 		log.WithError(err).Fatalln("Unable to parse configuration file")
 	}
 

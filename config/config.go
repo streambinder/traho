@@ -10,3 +10,10 @@ type Config struct {
 		API string `yaml:"api"`
 	} `yaml:"gitlab"`
 }
+
+var config *Config
+
+// Get current config instance
+func Get() *Config {
+	return config
+}

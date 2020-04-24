@@ -8,6 +8,7 @@ import (
 	"github.com/bradfitz/slice"
 	"github.com/google/go-github/github"
 	"github.com/streambinder/solbump/config"
+	"github.com/streambinder/solbump/resource"
 	"golang.org/x/oauth2"
 )
 
@@ -52,16 +53,41 @@ func client() *github.Client {
 	return cli
 }
 
-func getLatestRelease(user, project string) (rel *github.RepositoryRelease, err error) {
-	rel, _, err = client().Repositories.GetLatestRelease(ctx, user, project)
-	return
+func getLatestRelease(user, project string) (*github.RepositoryRelease, error) {
+	releases, _, err := client().Repositories.ListReleases(ctx, user, project, &github.ListOptions{PerPage: 1500})
+	if err != nil {
+		return nil, err
+	}
+
+	for _, release := range releases {
+		if *release.Prerelease || *release.Draft {
+			continue
+		}
+
+		if err := resource.ValidateVersion(release.GetTagName()); err == nil {
+			return release, nil
+		}
+	}
+
+	return nil, fmt.Errorf("No release found")
 }
 
-func getTags(user, project string) (tags []*github.RepositoryTag, err error) {
-	tags, _, err = client().Repositories.ListTags(ctx, user, project, &github.ListOptions{PerPage: 1500})
-	for _, tag := range tags {
+func getLatestTag(user, project string) (tag *github.RepositoryTag, err error) {
+	var tags []*github.RepositoryTag
+
+	repoTags, _, err := client().Repositories.ListTags(ctx, user, project, &github.ListOptions{PerPage: 1500})
+	if err != nil {
+		return
+	}
+
+	for _, tag := range repoTags {
+		if err := resource.ValidateVersion((tag.GetName())); err != nil {
+			continue
+		}
+
 		if commit, _, err := client().Repositories.GetCommit(ctx, user, project, *tag.GetCommit().SHA); err == nil {
 			tag.Commit.Author = commit.Commit.Author
+			tags = append(tags, tag)
 		}
 	}
 
@@ -71,5 +97,9 @@ func getTags(user, project string) (tags []*github.RepositoryTag, err error) {
 		return dateFirst.After(dateLatter)
 	})
 
-	return
+	if len(tags) > 0 {
+		return tags[0], nil
+	}
+
+	return nil, fmt.Errorf("No tag found")
 }

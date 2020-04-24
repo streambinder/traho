@@ -45,16 +45,12 @@ func (provider TarballProvider) Bump(url, hash, version string) (string, string,
 		return *release.TarballURL, *release.TagName, nil
 	}
 
-	tags, err := getTags(address.User, address.Project)
+	tag, err := getLatestTag(address.User, address.Project)
 	if err != nil {
 		return "", "", err
 	}
 
-	if len(tags) == 0 {
-		return "", "", fmt.Errorf("No tag found")
-	}
-
-	return strings.ReplaceAll(url, address.Tag, tags[0].GetName()), tags[0].GetName(), nil
+	return strings.ReplaceAll(url, address.Tag, tag.GetName()), tag.GetName(), nil
 }
 
 // Hashes returns whether or not the provider uses

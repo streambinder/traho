@@ -45,16 +45,12 @@ func (provider TagProvider) Bump(url, tag, version string) (string, string, erro
 		return *release.TarballURL, *release.TagName, nil
 	}
 
-	tags, err := getTags(address.User, address.Project)
+	repoTag, err := getLatestTag(address.User, address.Project)
 	if err != nil {
 		return "", "", err
 	}
 
-	if len(tags) == 0 {
-		return "", "", fmt.Errorf("No tag found")
-	}
-
-	return url, tags[0].GetName(), nil
+	return url, repoTag.GetName(), nil
 }
 
 // Hashes returns whether or not the provider uses

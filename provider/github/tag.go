@@ -42,7 +42,7 @@ func (provider TagProvider) Bump(url, tag, version string) (string, string, erro
 
 	release, err := getLatestRelease(address.User, address.Project)
 	if err == nil {
-		return *release.TarballURL, *release.TagName, nil
+		return address.Full, *release.TagName, nil
 	}
 
 	repoTag, err := getLatestTag(address.User, address.Project)

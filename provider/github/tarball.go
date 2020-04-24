@@ -42,7 +42,7 @@ func (provider TarballProvider) Bump(url, hash, version string) (string, string,
 
 	release, err := getLatestRelease(address.User, address.Project)
 	if err == nil {
-		return *release.TarballURL, *release.TagName, nil
+		return strings.ReplaceAll(url, address.Tag, *release.TagName), *release.TagName, nil
 	}
 
 	tag, err := getLatestTag(address.User, address.Project)

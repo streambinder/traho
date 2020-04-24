@@ -2,6 +2,8 @@ package resource
 
 import (
 	"regexp"
+
+	"github.com/Masterminds/semver"
 )
 
 var (
@@ -23,4 +25,11 @@ func StripVersion(version string) string {
 	}
 
 	return version
+}
+
+// ValidateVersion returns an error if the given
+// string does not semantically resemble a version
+func ValidateVersion(version string) (err error) {
+	_, err = semver.NewVersion(StripVersion(version))
+	return
 }

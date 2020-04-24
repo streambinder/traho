@@ -18,6 +18,10 @@ func TestParseAssetAddress(t *testing.T) {
 		t.Errorf("Unexpected failure while parsing %s", url)
 	}
 
+	if asset.Full != url {
+		t.Errorf("Unexpected url mismatch: expected %s, got %s", url, asset.Full)
+	}
+
 	if asset.User != user {
 		t.Errorf("Unexpected user mismatch: expected %s, got %s", user, asset.User)
 	}

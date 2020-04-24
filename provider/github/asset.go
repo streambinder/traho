@@ -42,38 +42,24 @@ func (provider AssetProvider) Bump(url, hash, version string) (string, string, e
 		return "", "", err
 	}
 
-	rels, _, err := client().Repositories.ListReleases(ctx, address.User, address.Project, nil)
+	release, err := getLatestRelease(address.User, address.Project)
 	if err != nil {
-		return "", "", err
+		return "", "", nil
 	}
 
-	if len(rels) == 0 {
-		return "", "", fmt.Errorf("No release found")
+	if *release.Prerelease || *release.Draft {
+		return url, address.Release, nil
 	}
 
-	var (
-		bumpedURL = ""
-		tagName   = address.Release
-	)
-	for _, rel := range rels {
-		if *rel.Prerelease || *rel.Draft {
-			continue
-		}
-
-		if address.Release >= *rel.TagName {
-			break
-		}
-
-		for _, asset := range rel.Assets {
-			if levenshtein.ComputeDistance(url, *asset.BrowserDownloadURL) <
-				levenshtein.ComputeDistance(url, bumpedURL) {
-				bumpedURL = *asset.BrowserDownloadURL
-				tagName = *rel.TagName
-			}
+	var urlAsset string
+	for _, asset := range release.Assets {
+		if levenshtein.ComputeDistance(url, *asset.BrowserDownloadURL) <
+			levenshtein.ComputeDistance(url, urlAsset) {
+			urlAsset = *asset.BrowserDownloadURL
 		}
 	}
 
-	return bumpedURL, tagName, nil
+	return urlAsset, *release.TagName, nil
 }
 
 // Hashes returns whether or not the provider uses
@@ -89,6 +75,7 @@ func parseAssetAddress(url string) (*assetAddress, error) {
 	}
 
 	address := new(assetAddress)
+	address.Full = url
 	address.User = asset[1]
 	address.Project = asset[2]
 	address.Release = asset[3]

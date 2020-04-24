@@ -17,6 +17,10 @@ func TestParseTarballAddress(t *testing.T) {
 		t.Errorf("Unexpected failure while parsing %s", url)
 	}
 
+	if tarball.Full != url {
+		t.Errorf("Unexpected url mismatch: expected %s, got %s", url, tarball.Full)
+	}
+
 	if tarball.User != user {
 		t.Errorf("Unexpected user mismatch: expected %s, got %s", user, tarball.User)
 	}

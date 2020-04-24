@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"regexp"
 
+	"github.com/bradfitz/slice"
 	"github.com/google/go-github/github"
 	"github.com/streambinder/solbump/config"
 	"golang.org/x/oauth2"
@@ -15,7 +16,7 @@ var (
 )
 
 type address struct {
-	User, Project string
+	Full, User, Project string
 }
 
 var (
@@ -49,4 +50,26 @@ func client() *github.Client {
 		&oauth2.Token{AccessToken: config.Get().Github.API},
 	)))
 	return cli
+}
+
+func getLatestRelease(user, project string) (rel *github.RepositoryRelease, err error) {
+	rel, _, err = client().Repositories.GetLatestRelease(ctx, user, project)
+	return
+}
+
+func getTags(user, project string) (tags []*github.RepositoryTag, err error) {
+	tags, _, err = client().Repositories.ListTags(ctx, user, project, &github.ListOptions{PerPage: 1500})
+	for _, tag := range tags {
+		if commit, _, err := client().Repositories.GetCommit(ctx, user, project, *tag.GetCommit().SHA); err == nil {
+			tag.Commit.Author = commit.Commit.Author
+		}
+	}
+
+	slice.Sort(tags[:], func(i, j int) bool {
+		dateFirst := tags[i].GetCommit().GetAuthor().GetDate()
+		dateLatter := tags[j].GetCommit().GetAuthor().GetDate()
+		return dateFirst.After(dateLatter)
+	})
+
+	return
 }

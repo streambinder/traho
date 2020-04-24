@@ -4,11 +4,6 @@ import (
 	"fmt"
 	"regexp"
 	"strings"
-
-	"github.com/Masterminds/semver"
-	"github.com/bradfitz/slice"
-	"github.com/google/go-github/github"
-	"github.com/streambinder/solbump/resource"
 )
 
 var (
@@ -45,7 +40,12 @@ func (provider TarballProvider) Bump(url, hash, version string) (string, string,
 		return "", "", err
 	}
 
-	tags, _, err := client().Repositories.ListTags(ctx, address.User, address.Project, &github.ListOptions{PerPage: 1500})
+	release, err := getLatestRelease(address.User, address.Project)
+	if err == nil {
+		return *release.TarballURL, *release.TagName, nil
+	}
+
+	tags, err := getTags(address.User, address.Project)
 	if err != nil {
 		return "", "", err
 	}
@@ -53,18 +53,6 @@ func (provider TarballProvider) Bump(url, hash, version string) (string, string,
 	if len(tags) == 0 {
 		return "", "", fmt.Errorf("No tag found")
 	}
-
-	slice.Sort(tags[:], func(i, j int) bool {
-		versionFirst, errFirst := semver.NewVersion(resource.StripVersion(tags[i].GetName()))
-		if errFirst != nil {
-			return false
-		}
-		versionLatter, errLatter := semver.NewVersion(resource.StripVersion(tags[j].GetName()))
-		if errLatter != nil {
-			return true
-		}
-		return versionFirst.GreaterThan(versionLatter)
-	})
 
 	return strings.ReplaceAll(url, address.Tag, tags[0].GetName()), tags[0].GetName(), nil
 }
@@ -82,6 +70,7 @@ func parseTarballAddress(url string) (*tarballAddress, error) {
 	}
 
 	address := new(tarballAddress)
+	address.Full = url
 	address.User = tarball[1]
 	address.Project = tarball[2]
 	address.Tag = tarball[3]

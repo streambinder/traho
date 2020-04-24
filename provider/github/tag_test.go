@@ -16,6 +16,10 @@ func TestParseTagAddress(t *testing.T) {
 		t.Errorf("Unexpected failure while parsing %s", url)
 	}
 
+	if tag.Full != url {
+		t.Errorf("Unexpected url mismatch: expected %s, got %s", url, tag.Full)
+	}
+
 	if tag.User != user {
 		t.Errorf("Unexpected user mismatch: expected %s, got %s", user, tag.User)
 	}

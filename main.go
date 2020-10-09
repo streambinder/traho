@@ -5,6 +5,7 @@ import (
 	"os/user"
 	"path/filepath"
 
+	"github.com/agnivade/levenshtein"
 	"github.com/sirupsen/logrus"
 	"github.com/streambinder/solbump/config"
 	"github.com/streambinder/solbump/provider"
@@ -113,6 +114,13 @@ func handleSources(asset *resource.Asset) error {
 					return err
 				}
 				log.WithField("asset", resource.SourceID(url)).Errorln(err)
+				continue
+			} else if levenshtein.ComputeDistance(asset.Version, version) > 10 {
+				log.WithFields(logrus.Fields{
+					"package": asset.ID(),
+					"asset":   resource.SourceID(url),
+					"version": version,
+				}).Warnln("Unmatching new version, ignoring")
 				continue
 			}
 

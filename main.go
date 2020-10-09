@@ -115,11 +115,11 @@ func handleSources(asset *resource.Asset) error {
 				}
 				log.WithField("asset", resource.SourceID(url)).Errorln(err)
 				continue
-			} else if levenshtein.ComputeDistance(asset.Version, version) > 10 {
+			} else if levenshtein.ComputeDistance(asset.Version, resource.StripVersion(version)) > 10 {
 				log.WithFields(logrus.Fields{
 					"package": asset.ID(),
 					"asset":   resource.SourceID(url),
-					"version": version,
+					"version": resource.StripVersion(version),
 				}).Warnln("Unmatching new version, ignoring")
 				continue
 			}

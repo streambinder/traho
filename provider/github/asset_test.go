@@ -7,7 +7,7 @@ import (
 func TestParseAssetAddress(t *testing.T) {
 	var (
 		user       = "streambinder"
-		project    = "solbump"
+		project    = "traho"
 		release    = "1.0.0"
 		resource   = "asset.zip"
 		url        = "https://github.com/" + user + "/" + project + "/releases/download/" + release + "/" + resource

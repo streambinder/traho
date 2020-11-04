@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"regexp"
 
-	"github.com/streambinder/solbump/config"
+	"github.com/streambinder/traho/config"
 	"github.com/xanzy/go-gitlab"
 )
 

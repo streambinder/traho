@@ -5,7 +5,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/streambinder/solbump/resource"
+	"github.com/streambinder/traho/resource"
 	"github.com/xanzy/go-gitlab"
 )
 

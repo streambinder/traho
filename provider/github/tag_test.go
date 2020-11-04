@@ -7,7 +7,7 @@ import (
 func TestParseTagAddress(t *testing.T) {
 	var (
 		user     = "streambinder"
-		project  = "solbump"
+		project  = "traho"
 		url      = "git|https://github.com/" + user + "/" + project + ".git"
 		tag, err = parseTagAddress(url)
 	)

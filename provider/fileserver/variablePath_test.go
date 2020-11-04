@@ -6,7 +6,7 @@ import (
 
 func TestParseVariableAddress(t *testing.T) {
 	var (
-		base         = "https://davidepucci.it/solbump"
+		base         = "https://davidepucci.it/traho"
 		release      = "1.0.0"
 		resource     = "1.0.0.tar.bz2"
 		url          = base + "/" + release + "/" + resource

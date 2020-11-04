@@ -9,7 +9,7 @@ import (
 
 	"github.com/Masterminds/semver"
 	"github.com/PuerkitoBio/goquery"
-	"github.com/streambinder/solbump/resource"
+	"github.com/streambinder/traho/resource"
 )
 
 var (

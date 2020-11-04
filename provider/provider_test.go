@@ -3,10 +3,10 @@ package provider
 import (
 	"testing"
 
-	"github.com/streambinder/solbump/provider/fileserver"
-	"github.com/streambinder/solbump/provider/github"
-	"github.com/streambinder/solbump/provider/gitlab"
-	"github.com/streambinder/solbump/provider/undated"
+	"github.com/streambinder/traho/provider/fileserver"
+	"github.com/streambinder/traho/provider/github"
+	"github.com/streambinder/traho/provider/gitlab"
+	"github.com/streambinder/traho/provider/undated"
 )
 
 type source struct {
@@ -18,13 +18,13 @@ type source struct {
 const version = "1.0.0"
 
 var sources = []source{
-	{"git|https://github.com/streambinder/solbump.git", version, new(github.TagProvider).Name()},
-	{"https://github.com/streambinder/solbump/releases/download/" + version + "/asset.zip", version, new(github.AssetProvider).Name()},
-	{"https://github.com/streambinder/solbump/archive/" + version + ".tar.gz", version, new(github.TarballProvider).Name()},
-	{"https://gitlab.com/streambinder/solbump/-/archive/" + version + "/solbump-" + version + ".tar.gz", version, new(gitlab.Provider).Name()},
-	{"https://davidepucci.it/solbump/" + version + "/solbump-" + version + ".tar.bz2", version, new(fileserver.VariablePathProvider).Name()},
-	{"https://davidepucci.it/solbump/solbump-" + version + ".tar.bz2", version, new(fileserver.FixedPathProvider).Name()},
-	{"https://davidepucci.it/download?project=Solbump", "20060102", new(undated.Provider).Name()},
+	{"git|https://github.com/streambinder/traho.git", version, new(github.TagProvider).Name()},
+	{"https://github.com/streambinder/traho/releases/download/" + version + "/asset.zip", version, new(github.AssetProvider).Name()},
+	{"https://github.com/streambinder/traho/archive/" + version + ".tar.gz", version, new(github.TarballProvider).Name()},
+	{"https://gitlab.com/streambinder/traho/-/archive/" + version + "/traho-" + version + ".tar.gz", version, new(gitlab.Provider).Name()},
+	{"https://davidepucci.it/traho/" + version + "/traho-" + version + ".tar.bz2", version, new(fileserver.VariablePathProvider).Name()},
+	{"https://davidepucci.it/traho/traho-" + version + ".tar.bz2", version, new(fileserver.FixedPathProvider).Name()},
+	{"https://davidepucci.it/download?project=traho", "20060102", new(undated.Provider).Name()},
 }
 
 func TestFor(t *testing.T) {

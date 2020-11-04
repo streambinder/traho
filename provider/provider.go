@@ -3,10 +3,10 @@ package provider
 import (
 	"fmt"
 
-	"github.com/streambinder/solbump/provider/fileserver"
-	"github.com/streambinder/solbump/provider/github"
-	"github.com/streambinder/solbump/provider/gitlab"
-	"github.com/streambinder/solbump/provider/undated"
+	"github.com/streambinder/traho/provider/fileserver"
+	"github.com/streambinder/traho/provider/github"
+	"github.com/streambinder/traho/provider/gitlab"
+	"github.com/streambinder/traho/provider/undated"
 )
 
 // Provider represents a source from which a package

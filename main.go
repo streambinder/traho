@@ -7,9 +7,9 @@ import (
 
 	"github.com/agnivade/levenshtein"
 	"github.com/sirupsen/logrus"
-	"github.com/streambinder/solbump/config"
-	"github.com/streambinder/solbump/provider"
-	"github.com/streambinder/solbump/resource"
+	"github.com/streambinder/traho/config"
+	"github.com/streambinder/traho/provider"
+	"github.com/streambinder/traho/resource"
 	logrusFormat "github.com/x-cray/logrus-prefixed-formatter"
 )
 
@@ -34,7 +34,7 @@ func init() {
 	if err != nil {
 		log.WithError(err).Fatalln("Unable to get current user")
 	}
-	if err = config.Parse(filepath.Join(usr.HomeDir, ".config/solbump")); err != nil {
+	if err = config.Parse(filepath.Join(usr.HomeDir, ".config/traho")); err != nil {
 		log.WithError(err).Fatalln("Unable to parse configuration file")
 	}
 

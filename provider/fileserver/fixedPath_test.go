@@ -6,7 +6,7 @@ import (
 
 func TestParseAddress(t *testing.T) {
 	var (
-		base         = "https://davidepucci.it/solbump"
+		base         = "https://davidepucci.it/traho"
 		resource     = "1.0.0.tar.bz2"
 		url          = base + "/" + resource
 		address, err = parseAddress(url)

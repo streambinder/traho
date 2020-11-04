@@ -7,8 +7,8 @@ import (
 
 	"github.com/bradfitz/slice"
 	"github.com/google/go-github/github"
-	"github.com/streambinder/solbump/config"
-	"github.com/streambinder/solbump/resource"
+	"github.com/streambinder/traho/config"
+	"github.com/streambinder/traho/resource"
 	"golang.org/x/oauth2"
 )
 

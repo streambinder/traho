@@ -4,7 +4,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/streambinder/solbump/resource"
+	"github.com/streambinder/traho/resource"
 )
 
 const (

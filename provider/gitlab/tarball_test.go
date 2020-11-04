@@ -7,7 +7,7 @@ import (
 func TestParseTarballAddress(t *testing.T) {
 	var (
 		user         = "streambinder"
-		project      = "solbump"
+		project      = "traho"
 		release      = "1.0.0"
 		url          = "https://gitlab.com/" + user + "/" + project + "/-/archive/" + release + "/" + project + "-" + release + ".tar.gz"
 		tarball, err = parseTarballAddress(url)

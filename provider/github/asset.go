@@ -44,7 +44,7 @@ func (provider AssetProvider) Bump(url, hash, version string) (string, string, e
 
 	release, err := getLatestRelease(address.User, address.Project)
 	if err != nil {
-		return "", "", nil
+		return "", "", err
 	}
 
 	if *release.Prerelease || *release.Draft {

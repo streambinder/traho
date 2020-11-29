@@ -97,7 +97,7 @@ func getLatestTag(user, project string) (tag *github.RepositoryTag, err error) {
 		return dateFirst.After(dateLatter)
 	})
 
-	for _, tag := range repoTags {
+	for _, tag := range tags {
 		return tag, nil
 	}
 

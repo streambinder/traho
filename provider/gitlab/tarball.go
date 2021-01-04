@@ -5,12 +5,14 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/sirupsen/logrus"
+	"github.com/streambinder/traho/config"
 	"github.com/streambinder/traho/resource"
 	"github.com/xanzy/go-gitlab"
 )
 
 var (
-	regTarball = regexp.MustCompile(`(?m)^http[s]?://gitlab.com/(?P<User>[a-zA-Z0-9\-]+)/(?P<Project>.+)/\-/archive/(?P<Release>[a-zA-Z0-9\-\.]+)/.*.tar.gz$`)
+	regTarball = regexp.MustCompile(`(?m)^(?P<Proto>http[s]?)://(?P<Domain>[a-zA-Z0-9\.\-]+)/(?P<User>[a-zA-Z0-9\-]+)/(?P<Project>.+)/\-/archive/(?P<Release>[a-zA-Z0-9\-\.]+)/.*.(zip|tar.gz|tar.bz2|tar)$`)
 )
 
 // Provider represents the Provider implementation
@@ -43,8 +45,9 @@ func (provider Provider) Bump(url, hash, version string) (string, string, error)
 		return "", "", err
 	}
 
-	tags, _, err := client().Tags.ListTags(address.User+"/"+address.Project, &gitlab.ListTagsOptions{})
+	tags, _, err := client(address.Proto, address.Domain).Tags.ListTags(address.User+"/"+address.Project, &gitlab.ListTagsOptions{})
 	if err != nil {
+		logrus.Println(err)
 		return "", "", err
 	}
 
@@ -59,15 +62,16 @@ func (provider Provider) Bump(url, hash, version string) (string, string, error)
 
 func parseTarballAddress(url string) (*tarballAddress, error) {
 	regTarball := regTarball.FindStringSubmatch(url)
-	if len(regTarball) < 4 {
+	if len(regTarball) < 6 {
 		return nil, fmt.Errorf("Unrecognized url %s", url)
 	}
 
-	addressTarball := new(tarballAddress)
-	addressTarball.User = regTarball[1]
-	addressTarball.Project = regTarball[2]
-	addressTarball.Release = regTarball[3]
-	return addressTarball, nil
+	addr := &tarballAddress{address{Proto: regTarball[1], Domain: regTarball[2], User: regTarball[3], Project: regTarball[4]}, regTarball[5]}
+	if !(addr.Domain == "gitlab.com" || config.HasGitlabDomain(addr.Domain)) {
+		return nil, fmt.Errorf("Domain %s does not point to a Gitlab instance", addr.Domain)
+	}
+
+	return addr, nil
 }
 
 // Hashes returns whether or not the provider uses
